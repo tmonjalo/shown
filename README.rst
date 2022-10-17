@@ -31,3 +31,20 @@ in another direction.
 The shutter will be stopped only after the last move.
 All moves in progress are registered temporarily in the directory ``dir``.
 This directory is created in ``/tmp`` by default.
+
+
+Shutter integration in Home Assistant
+-------------------------------------
+
+The script ``own-move.sh`` can be used to control shutters from Home Assistant.
+
+Home Assistant forbids scripts to write outside of its configuration directory.
+For this reason the variable ``dir`` of the script ``own-move.sh``
+must be adjusted.
+
+In order to ease its integration, the script ``own-hass-config.sh``
+will generate the configuration to copy/paste in ``configuration.yaml``.
+
+The list of shutters ID and name must be provided in the variable ``shutters``
+at the beginning of the script file ``own-hass-config.sh``.
+The format is "ID friendly name", one shutter per line.

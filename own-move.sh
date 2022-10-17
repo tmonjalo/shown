@@ -16,6 +16,7 @@ delay_action=${3:-33}
 delay_send=0.2
 
 dir=/tmp/shown-move   # TO BE ADJUSTED
+#dir=/var/lib/private/hass/shown-move # for Home Assistant
 mkdir -p $dir
 stamp=$dir/$id-$(date '+%H%M%S')
 
