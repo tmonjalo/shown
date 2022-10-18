@@ -48,3 +48,35 @@ will generate the configuration to copy/paste in ``configuration.yaml``.
 The list of shutters ID and name must be provided in the variable ``shutters``
 at the beginning of the script file ``own-hass-config.sh``.
 The format is "ID friendly name", one shutter per line.
+
+
+Remote control of shutters via Home Assistant
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After requesting a secret token in Home Assistant profile page
+(``http://home-assistant:8123/profile``),
+the REST API can be used to control the shutters remotely.
+
+A basic command using ``curl`` would look like this::
+
+   curl -X POST -H "Authorization: Bearer 53CR37_70K3N" \
+   -d '{"entity_id": "cover.kitchen"}' \
+   http://home-assistant:8123/api/services/cover/action
+
+where ``action`` can be one of:
+
+- open_cover
+- close_cover
+- stop_cover
+
+The full list of actions can be queried with::
+
+   curl -sH "Authorization: Bearer 53CR37_70K3N" \
+   http://home-assistant:8123/api/services |
+   jq '.[] | select(.domain=="cover").services | keys | .[]' | tr -d '"'
+
+The name of cover entities can be queried with::
+
+   curl -sH "Authorization: Bearer 53CR37_70K3N" \
+   http://home-assistant:8123/api/states |
+   jq | grep -F '"cover.'
