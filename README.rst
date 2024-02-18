@@ -59,8 +59,8 @@ the REST API can be used to control the shutters remotely.
 
 A basic command using ``curl`` would look like this::
 
-   curl -X POST -H "Authorization: Bearer 53CR37_70K3N" \
-   -d '{"entity_id": "cover.kitchen"}' \
+   jo entity_id=cover.kitchen |
+   curl -sH "Authorization: Bearer 53CR37_70K3N" --json @- \
    http://home-assistant:8123/api/services/cover/action
 
 where ``action`` can be one of:
@@ -73,10 +73,10 @@ The full list of actions can be queried with::
 
    curl -sH "Authorization: Bearer 53CR37_70K3N" \
    http://home-assistant:8123/api/services |
-   jq '.[] | select(.domain=="cover").services | keys | .[]' | tr -d '"'
+   jq -r '.[] | select(.domain=="cover").services | keys | .[]' | sort
 
 The name of cover entities can be queried with::
 
    curl -sH "Authorization: Bearer 53CR37_70K3N" \
    http://home-assistant:8123/api/states |
-   jq | grep -F '"cover.'
+   jq -r '.[].entity_id' | grep '^cover' | sort
