@@ -21,7 +21,7 @@ mkdir -p $dir
 stamp=$dir/$id-$(date '+%H%M%S')
 
 send () { # <command>
-	echo "*99*9##$1" | nc $addr $port &
+	echo "*99*9##$1" | nc -n $addr $port &
 	sleep $delay_send
 	kill $!
 }
