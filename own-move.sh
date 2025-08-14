@@ -4,14 +4,9 @@
 
 addr=192.168.3.33   # TO BE ADJUSTED
 port=20000          # TO BE ADJUSTED
-category=2          # TO BE ADJUSTED
-
-off=0
-up=1
-down=2
 
 id=${1:-0}
-move=${2:-$down}
+move=${2:-0} # 0: off - 1: on/up - 2: down
 delay_action=${3:-33}
 delay_send=0.2
 
@@ -26,17 +21,33 @@ send () { # <command>
 	kill $!
 }
 
-action () { # <category> <id> <direction>
-	printf 'category %d - id %d - direction %d - result ' $1 $2 $3
-	send "*$1*$3*$2##" |
+action () { # <id> <move>
+	case $1 in
+		L*)
+			category=1 # lighting
+			id=${1:1}
+			delay_action=0
+			;;
+		A*)
+			category=2 # automation
+			id=${1:1}
+			;;
+		*)
+			category=2 # automation, default
+			id=$1
+			;;
+	esac
+	move=$2
+	printf 'category %d - id %d - move %d - result ' $category $id $move
+	send "*$category*$move*$id##" |
 	sed -n 's,.*\*#\*\(.\)##$,\1\n,p'
 }
 
-stop_if_last  () { # <category> <file>
-	rm -f $2
-	id=$(echo $2 | sed -rn 's,.*/(.*)-.*,\1,p')
+stop_if_last  () { # <file>
+	rm -f $1
+	id=$(echo $1 | sed -rn 's,.*/(.*)-.*,\1,p')
 	test -n "$(ls $dir/$id-* 2>&-)" ||
-	action $1 $id $off
+	action $id $off
 }
 
 if [ "$move" != "$off" ] ; then
@@ -44,18 +55,18 @@ if [ "$move" != "$off" ] ; then
 
 	# stop on exit if no more recent move
 	signals="0 2 3 15"
-	trap "stop_if_last $category $stamp ; trap - $signals" $signals
+	trap "stop_if_last $stamp ; trap - $signals" $signals
 fi
 
 # move
-action $category $id $move
+action $id $move
 
 # stop old crashed commands
 for f in $(find $dir -not -newermt '-2 minutes') ; do
-	stop_if_last $category $f
+	stop_if_last $f
 done
 
-if [ "$move" != "$off" ] ; then
+if [ "$move" != 0 ] ; then
 	# wait
 	sleep $delay_action
 fi
